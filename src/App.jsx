@@ -99,7 +99,7 @@ export default function App() {
       }}>
 
         <div>
-          <div><h2>Bs 1 Sawal ke?</h2></div>
+          <div><h2>Just a one Question?</h2></div>
 
 
           <div>
