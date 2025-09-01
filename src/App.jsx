@@ -92,9 +92,9 @@ export default function App() {
     <>
       <div style={{
         background: 'red',
+        border: '2px solid black',
+        margin: '8rem',
         padding: '2rem',
-        marginTop: '8rem',
-        margin: '7rem',
         textAlign: 'center'
       }}>
 
