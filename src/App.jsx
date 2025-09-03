@@ -1,5 +1,29 @@
 import { useState } from "react";
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from "zod";
+
+// Define Zod schema
+const productSchema = z.object({
+
+  title: z.string()
+    .min(5, "Title must be at least 5 characters")
+    .max(15, "Title must be less than 15 characters"),
+
+
+
+  price: z.string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Price must be a valid number (e.g., 10 or 10.99)")
+    .min(1, "Price is required"),
+
+
+
+  stock: z.string()
+    .regex(/^\d+$/, "Stock must be a whole number")
+    .min(1, "Stock is required")
+});
+
+
 
 export default function App() {
   const [items, setItems] = useState([]);
@@ -8,7 +32,9 @@ export default function App() {
     handleSubmit,
     formState: { errors },
     reset
-  } = useForm();
+  } = useForm({
+    resolver: zodResolver(productSchema)
+  });
 
   const onSubmit = (data) => {
     setItems([...items, data]);
@@ -31,17 +57,16 @@ export default function App() {
           <input
             type="text"
             placeholder="Enter The title"
-            {...register("title", {
-              required: "Enter The title",
-            })}
+            {...register("title")}
             style={{
               margin: '5px',
               padding: '8px',
               width: '250px',
+              border: errors.title ? '1px solid red' : '1px solid #ccc'
             }}
           />
           {errors.title && (
-            <p style={{ color: 'red', fontSize: '14px' }}>
+            <p style={{ color: 'red', fontSize: '14px', margin: '5px 0' }}>
               {errors.title.message}
             </p>
           )}
@@ -50,17 +75,16 @@ export default function App() {
           <input
             type="text"
             placeholder="Enter The Price"
-            {...register("price", {
-              required: "Enter The Price",
-            })}
+            {...register("price")}
             style={{
               margin: '5px',
               padding: '8px',
               width: '250px',
+              border: errors.price ? '1px solid red' : '1px solid #ccc'
             }}
           />
           {errors.price && (
-            <p style={{ color: 'red', fontSize: '14px' }}>
+            <p style={{ color: 'red', fontSize: '14px', margin: '5px 0' }}>
               {errors.price.message}
             </p>
           )}
@@ -69,17 +93,16 @@ export default function App() {
           <input
             type="text"
             placeholder="Enter The Stock"
-            {...register("stock", {
-              required: "Enter The Stock",
-            })}
+            {...register("stock")}
             style={{
               margin: '5px',
               padding: '8px',
               width: '250px',
+              border: errors.stock ? '1px solid red' : '1px solid #ccc'
             }}
           />
           {errors.stock && (
-            <p style={{ color: 'red', fontSize: '14px' }}>
+            <p style={{ color: 'red', fontSize: '14px', margin: '5px 0' }}>
               {errors.stock.message}
             </p>
           )}
@@ -122,9 +145,9 @@ export default function App() {
               }}>
                 Product Card
               </div>
-              <h3> Title:{item.title}</h3>
-              <p> Price: {item.price}</p>
-              <p> Stock: {item.stock}</p>
+              <h3 style={{ margin: '0 0 10px 0' }}>Title: {item.title}</h3>
+              <p style={{ margin: '5px 0' }}>Price: {item.price}</p>
+              <p style={{ margin: '5px 0' }}>Stock: {item.stock}</p>
             </div>
           ))}
         </div>
