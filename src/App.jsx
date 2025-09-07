@@ -1,39 +1,35 @@
 import { useState } from "react";
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from "zod";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import Navbar from "./components/Navbar";
 
-// Define Zod schema
-const productSchema = z.object({
-
-  title: z.string()
+const productSchema = yup.object({
+  title: yup.string()
     .min(5, "Title must be at least 5 characters")
-    .max(15, "Title must be less than 15 characters"),
-
-
-
-  price: z.string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Price must be a valid number (e.g., 10 or 10.99)")
-    .min(1, "Price is required"),
-
-
-
-  stock: z.string()
-    .regex(/^\d+$/, "Stock must be a whole number")
-    .min(1, "Stock is required")
+    .max(15, "Title must be less than 15 characters")
+    .required("Title is required"),
+  price: yup.number()
+    .typeError("Price must be a number")
+    .positive("Price must be positive")
+    .required("Price is required"),
+  stock: yup.number()
+    .typeError("Stock must be a number")
+    .integer("Stock must be a number")
+    .min(0, "Stock cannot be negative")
+    .required("Stock is required")
 });
-
-
 
 export default function App() {
   const [items, setItems] = useState([]);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset
   } = useForm({
-    resolver: zodResolver(productSchema)
+    resolver: yupResolver(productSchema)
   });
 
   const onSubmit = (data) => {
@@ -42,114 +38,89 @@ export default function App() {
   };
 
   return (
-    <div className="container" style={{ padding: '20px' }}>
-      <div style={{
-        textAlign: 'center',
-        background: '#f5f5f5',
-        border: '1px solid #000000ff',
-        padding: '20px',
-        width: '100%',
-        marginBottom: '20px'
-      }}>
-        <h2>Add Product</h2>
+    <div>
+      <Navbar logo="Product Manager" name="Home" />
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <input
-            type="text"
-            placeholder="Enter The title"
-            {...register("title")}
-            style={{
-              margin: '5px',
-              padding: '8px',
-              width: '250px',
-              border: errors.title ? '1px solid red' : '1px solid #ccc'
-            }}
-          />
-          {errors.title && (
-            <p style={{ color: 'red', fontSize: '14px', margin: '5px 0' }}>
-              {errors.title.message}
-            </p>
-          )}
-          <br />
+      <div className="container mt-4">
+        <div className="row justify-content-center">
+          <div className="col-md-8">
+            <div className="card shadow-sm mb-4">
+              <div className="card-body">
+                <h2 className="card-title text-center mb-4">Add Product</h2>
 
-          <input
-            type="text"
-            placeholder="Enter The Price"
-            {...register("price")}
-            style={{
-              margin: '5px',
-              padding: '8px',
-              width: '250px',
-              border: errors.price ? '1px solid red' : '1px solid #ccc'
-            }}
-          />
-          {errors.price && (
-            <p style={{ color: 'red', fontSize: '14px', margin: '5px 0' }}>
-              {errors.price.message}
-            </p>
-          )}
-          <br />
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <div className="mb-3">
+                    <input
+                      type="text"
+                      className={`form-control ${errors.title ? 'is-invalid' : ''}`}
+                      placeholder="Product title"
+                      {...register("title")}
+                    />
+                    {errors.title && (
+                      <div className="invalid-feedback">
+                        {errors.title.message}
+                      </div>
+                    )}
+                  </div>
 
-          <input
-            type="text"
-            placeholder="Enter The Stock"
-            {...register("stock")}
-            style={{
-              margin: '5px',
-              padding: '8px',
-              width: '250px',
-              border: errors.stock ? '1px solid red' : '1px solid #ccc'
-            }}
-          />
-          {errors.stock && (
-            <p style={{ color: 'red', fontSize: '14px', margin: '5px 0' }}>
-              {errors.stock.message}
-            </p>
-          )}
-          <br />
+                  <div className="mb-3">
+                    <input
+                      type="text"
+                      className={`form-control ${errors.price ? 'is-invalid' : ''}`}
+                      placeholder="Price"
+                      {...register("price")}
+                    />
+                    {errors.price && (
+                      <div className="invalid-feedback">
+                        {errors.price.message}
+                      </div>
+                    )}
+                  </div>
 
-          <button type="submit" style={{
-            margin: '10px',
-            padding: '10px 15px',
-            background: '#007bff',
-            color: 'white',
-            border: 'none'
-          }}>
-            Add Product
-          </button>
-        </form>
-      </div>
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      className={`form-control ${errors.stock ? 'is-invalid' : ''}`}
+                      placeholder="Stock quantity"
+                      {...register("stock")}
+                    />
+                    {errors.stock && (
+                      <div className="invalid-feedback">
+                        {errors.stock.message}
+                      </div>
+                    )}
+                  </div>
 
-      <div className="container">
-        <h2>Products</h2>
-        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-          {items.map((item, index) => (
-            <div key={index} style={{
-              border: '1px solid #ddd',
-              padding: '15px',
-              margin: '10px',
-              borderRadius: '5px',
-              width: '200px',
-              background: '#fff',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-            }}>
-              <div style={{
-                background: '#007bff',
-                color: 'white',
-                padding: '10px',
-                margin: '-15px -15px 15px -15px',
-                borderTopLeftRadius: '5px',
-                borderTopRightRadius: '5px',
-                textAlign: 'center',
-                fontWeight: 'bold'
-              }}>
-                Product Card
+                  <button
+                    type="submit"
+                    className="btn btn-primary w-100"
+                  >
+                    Add Product
+                  </button>
+                </form>
               </div>
-              <h3 style={{ margin: '0 0 10px 0' }}>Title: {item.title}</h3>
-              <p style={{ margin: '5px 0' }}>Price: {item.price}</p>
-              <p style={{ margin: '5px 0' }}>Stock: {item.stock}</p>
             </div>
-          ))}
+
+            <div>
+              <h2 className="mb-4">Products</h2>
+
+              {items.length > 0 && (
+                <div className="row">
+                  {items.map((item, index) => (
+                    <div key={index} className="col-md-6 col-lg-4 mb-3">
+                      <div className="card h-100 shadow-sm">
+                        <div className="card-body">
+                          <h5 className="card-title">{item.title}</h5>
+                          <p className="card-text mb-1">Price: {parseFloat(item.price).toFixed(2)}</p>
+                          <p className="card-text">Stock: {item.stock}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
